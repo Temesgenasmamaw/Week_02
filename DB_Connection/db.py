@@ -18,12 +18,7 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 def load_data_from_postgres(query):
-    """
-    Connects to the PostgreSQL database and loads data based on the provided SQL query.
 
-    :param query: SQL query to execute.
-    :return: DataFrame containing the results of the query.
-    """
     try:
         # Establish a connection to the database
         connection = psycopg2.connect(
@@ -49,6 +44,7 @@ def load_data_from_postgres(query):
 
 
 def load_data_using_sqlalchemy(query):
+    
     """
     Connects to the PostgreSQL database and loads data based on the provided SQL query using SQLAlchemy.
 
@@ -58,6 +54,7 @@ def load_data_using_sqlalchemy(query):
     try:
         # Create a connection string
         connection_string = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
 
         # Create an SQLAlchemy engine
         engine = create_engine(connection_string)

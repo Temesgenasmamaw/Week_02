@@ -55,6 +55,7 @@ def fix_outlier(df, column):
     return df[column]
 
 def remove_outliers(df, column_to_process, z_threshold=3):
+
     # Apply outlier removal to the specified column
     z_scores = zscore(df[column_to_process])
     outlier_column = column_to_process + '_Outlier'
