@@ -1,5 +1,7 @@
 {
     "python.analysis.extraPaths": [
-        "./scripts"
+        "./scripts",
+        "./DB_Connection",
+        "./src"
     ]
 }
