@@ -55,7 +55,6 @@ def fix_outlier(df, column):
     return df[column]
 
 def remove_outliers(df, column_to_process, z_threshold=3):
-
     # Apply outlier removal to the specified column
     z_scores = zscore(df[column_to_process])
     outlier_column = column_to_process + '_Outlier'
@@ -66,3 +65,39 @@ def remove_outliers(df, column_to_process, z_threshold=3):
     df = df.drop(columns=[outlier_column], errors='ignore')
 
     return df
+import numpy as np
+
+def remove_all_columns_outliers(df):
+    """
+    Detect and remove outliers from all numerical columns in the DataFrame.
+    
+    Parameters:
+    df (pd.DataFrame): The DataFrame to process.
+
+    Returns:
+    pd.DataFrame: A DataFrame with outliers removed.
+    """
+    df_clean = df.copy()  # Copy the original DataFrame to avoid modifying it directly
+    
+    # Loop through each column in the DataFrame
+    for column in df_clean.select_dtypes(include=[np.number]).columns:
+        Q1 = df_clean[column].quantile(0.25)  # First quartile (25th percentile)
+        Q3 = df_clean[column].quantile(0.75)  # Third quartile (75th percentile)
+        IQR = Q3 - Q1  # Interquartile range
+        
+        # Calculate lower and upper bounds for detecting outliers
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+        
+        # Remove rows with outliers for the current column
+        df_clean = df_clean[(df_clean[column] >= lower_bound) & (df_clean[column] <= upper_bound)]
+    
+    return df_clean
+
+# Example usage
+# Assuming 'data' is your DataFrame
+data_cleaned = remove_outliers(data)
+
+# Check the shape of the cleaned data
+print(f"Original data shape: {data.shape}")
+print(f"Cleaned data shape: {data_cleaned.shape}")
