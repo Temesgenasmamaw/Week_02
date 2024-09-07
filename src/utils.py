@@ -67,37 +67,44 @@ def remove_outliers(df, column_to_process, z_threshold=3):
     return df
 import numpy as np
 
-def remove_all_columns_outliers(df):
+import numpy as np
+from scipy import stats
+
+def remove_all_columns_outliers(df, method="iqr"):
     """
-    Detect and remove outliers from all numerical columns in the DataFrame.
+    Detect and remove outliers from all numerical columns in the DataFrame using either the IQR or Z-score method.
     
     Parameters:
     df (pd.DataFrame): The DataFrame to process.
+    method (str): The method to use for outlier detection, either 'iqr' or 'zscore'. Defaults to 'iqr'.
 
     Returns:
     pd.DataFrame: A DataFrame with outliers removed.
     """
     df_clean = df.copy()  # Copy the original DataFrame to avoid modifying it directly
     
-    # Loop through each column in the DataFrame
-    for column in df_clean.select_dtypes(include=[np.number]).columns:
-        Q1 = df_clean[column].quantile(0.25)  # First quartile (25th percentile)
-        Q3 = df_clean[column].quantile(0.75)  # Third quartile (75th percentile)
-        IQR = Q3 - Q1  # Interquartile range
-        
-        # Calculate lower and upper bounds for detecting outliers
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
-        
-        # Remove rows with outliers for the current column
-        df_clean = df_clean[(df_clean[column] >= lower_bound) & (df_clean[column] <= upper_bound)]
+    if method == "iqr":
+        # Loop through each numeric column in the DataFrame
+        for column in df_clean.select_dtypes(include=[np.number]).columns:
+            Q1 = df_clean[column].quantile(0.25)  # First quartile (25th percentile)
+            Q3 = df_clean[column].quantile(0.75)  # Third quartile (75th percentile)
+            IQR = Q3 - Q1  # Interquartile range
+            
+            # Calculate lower and upper bounds for detecting outliers
+            lower_bound = Q1 - 1.5 * IQR
+            upper_bound = Q3 + 1.5 * IQR
+            
+            # Remove rows with outliers for the current column
+            df_clean = df_clean[(df_clean[column] >= lower_bound) & (df_clean[column] <= upper_bound)]
+    
+    elif method == "zscore":
+        # Apply Z-score method for detecting outliers
+        z_scores = np.abs(stats.zscore(df_clean.select_dtypes(include=[np.number])))
+        df_clean = df_clean[(z_scores < 3).all(axis=1)]
+    
+    else:
+        raise ValueError("Method must be either 'iqr' or 'zscore'")
     
     return df_clean
 
-# Example usage
-# Assuming 'data' is your DataFrame
-data_cleaned = remove_outliers(data)
 
-# Check the shape of the cleaned data
-print(f"Original data shape: {data.shape}")
-print(f"Cleaned data shape: {data_cleaned.shape}")
