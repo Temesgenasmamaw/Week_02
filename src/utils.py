@@ -82,6 +82,7 @@ def remove_all_columns_outliers(df, method="iqr"):
     pd.DataFrame: A DataFrame with outliers removed.
     """
     df_clean = df.copy()  # Copy the original DataFrame to avoid modifying it directly
+    # df_clean.fillna(df_clean.mean(), inplace=True)
     
     if method == "iqr":
         # Loop through each numeric column in the DataFrame
@@ -93,7 +94,9 @@ def remove_all_columns_outliers(df, method="iqr"):
             # Calculate lower and upper bounds for detecting outliers
             lower_bound = Q1 - 1.5 * IQR
             upper_bound = Q3 + 1.5 * IQR
-            
+             # Debugging output
+            print(f"Column: {column}")
+            print(f"  Q1: {Q1}, Q3: {Q3}, IQR: {IQR}, Lower Bound: {lower_bound}, Upper Bound: {upper_bound}")           
             # Remove rows with outliers for the current column
             df_clean = df_clean[(df_clean[column] >= lower_bound) & (df_clean[column] <= upper_bound)]
     
