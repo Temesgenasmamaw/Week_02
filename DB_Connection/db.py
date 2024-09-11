@@ -41,8 +41,16 @@ def load_data_from_postgres(query):
         print(f"An error occurred: {e}")
         return None
 
+    try:
+        # Create a database engine
+        engine = create_engine(f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}')
+        
+        # Export the dataframe to PostgreSQL
+        df.to_sql(table_name, engine, if_exists='replace', index=False)
+        print(f"Data successfully exported to the table {table_name}")
 
-
+    except Exception as e:
+        print(f"An error occurred: {e}")
 def load_data_using_sqlalchemy(query):
     
     """
@@ -67,3 +75,37 @@ def load_data_using_sqlalchemy(query):
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
+# Function to export DataFrame to PostgreSQL
+def export_data_to_postgres(df, table_name):
+
+    try:
+        # Create a connection string
+        connection_string = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+        # Create a SQLAlchemy engine
+        engine = create_engine(connection_string)
+
+        # Export the DataFrame to PostgreSQL
+        df.to_sql(table_name, engine, if_exists='replace', index=False)
+        print(f"Data successfully exported to the table {table_name}")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+# Verifying the export by querying the table
+def verify_export():
+    query = "SELECT * FROM user_experience_scores LIMIT 10;"
+    try:
+        # Create a connection string
+        connection_string = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+        # Create a SQLAlchemy engine
+        engine = create_engine(connection_string)
+
+        # Load data into a pandas DataFrame
+        result_df = pd.read_sql_query(query, engine)
+
+        print("Here are the top 10 records from the exported table:")
+        print(result_df)
+
+    except Exception as e:
+        print(f"An error occurred while verifying the export: {e}")
